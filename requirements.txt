@@ -1,0 +1,40 @@
+# ============================================================
+# Silent Doctor — Dependencies
+# Local-first AI medical assistant
+# ============================================================
+
+# --- LangChain (Orchestrator + LLM integration) ---
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+
+# --- Ollama (Local LLM backend) ---
+ollama>=0.2.0
+
+# --- Vision Models ---
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+
+# --- RAG: Embeddings + Vector Store ---
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# --- Document Processing (for RAG ingestion) ---
+PyPDF2>=3.0.0
+
+# --- Voice: Speech-to-Text ---
+faster-whisper>=1.0.0
+
+# --- Voice: Translation (NLLB) ---
+ctranslate2>=4.0.0
+sentencepiece>=0.1.99
+transformers>=4.35.0
+
+# --- Voice: Text-to-Speech ---
+TTS>=0.22.0
+
+# --- Audio I/O ---
+sounddevice>=0.4.6
+scipy>=1.11.0
+numpy>=1.24.0
