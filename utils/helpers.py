@@ -7,6 +7,7 @@ Image loading, audio recording, logging setup, and common helpers.
 import logging
 import sys
 from pathlib import Path
+
 from typing import Optional
 
 import numpy as np
