@@ -11,10 +11,16 @@ Usage:
     print(result["text"], result["language"])
 """
 
+import sys
+import os
 from pathlib import Path
 from typing import Optional, Union
 
+# Add parent directory to sys.path for direct execution testing
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
+
 
 from config.settings import (
     WHISPER_COMPUTE_TYPE,
@@ -28,10 +34,7 @@ logger = setup_logger(__name__)
 
 class SpeechToText:
     """
-    Local speech-to-text using faster-whisper.
-
-    Faster-whisper uses CTranslate2 under the hood for efficient
-    inference with INT8 quantization — ideal for low-resource devices.
+    Local speech-to-text using openai-whisper.
     """
 
     def __init__(
@@ -51,14 +54,13 @@ class SpeechToText:
         if self._model is None:
             logger.info(
                 f"Loading Whisper model: {self.model_size} "
-                f"(device={self.device}, compute={self.compute_type})"
+                f"(device={self.device})"
             )
-            from faster_whisper import WhisperModel
+            import whisper
 
-            self._model = WhisperModel(
+            self._model = whisper.load_model(
                 self.model_size,
                 device=self.device,
-                compute_type=self.compute_type,
             )
             logger.info("✅ Whisper model loaded.")
         return self._model
@@ -93,26 +95,22 @@ class SpeechToText:
 
         logger.info("🎧 Transcribing audio ...")
 
-        segments_iter, info = self.model.transcribe(
+        result = self.model.transcribe(
             source,
             language=language,
-            beam_size=5,
-            vad_filter=True,  # Voice activity detection
         )
 
         # Collect all segments
         segments = []
-        full_text_parts = []
-        for segment in segments_iter:
+        for segment in result["segments"]:
             segments.append({
-                "start": round(segment.start, 2),
-                "end": round(segment.end, 2),
-                "text": segment.text.strip(),
+                "start": round(segment["start"], 2),
+                "end": round(segment["end"], 2),
+                "text": segment["text"].strip(),
             })
-            full_text_parts.append(segment.text.strip())
 
-        full_text = " ".join(full_text_parts)
-        detected_lang = info.language
+        full_text = result["text"].strip()
+        detected_lang = result.get("language", language or "unknown")
 
         logger.info(
             f"✅ Transcription complete. "
@@ -152,3 +150,16 @@ def get_stt(**kwargs) -> SpeechToText:
     if _cached_stt is None:
         _cached_stt = SpeechToText(**kwargs)
     return _cached_stt
+
+
+if __name__ == "__main__":
+    stt = get_stt()
+    print("Testing Whisper STT. Please speak into your microphone for 5 seconds...")
+    try:
+        res = stt.transcribe_from_mic(duration=5.0)
+        print("\n--- Transcription Result ---")
+        print("Text:", res["text"])
+        print("Language:", res["language"])
+        print("----------------------------")
+    except Exception as e:
+        print("Error during test:", e)

@@ -33,6 +33,5 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
-# Large dataset folders (just in case datasets/.gitignore is missed)
-datasets/skinData/
-datasets/eyeData/
+# Large dataset folders
+datasets/
